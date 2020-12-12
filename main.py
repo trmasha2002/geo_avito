@@ -23,10 +23,8 @@ class Server(object):
     def delete(self, key):
         if key in self._data.keys():
             self._data.delete(key)
-s = Server()
-s.set("firstname", "Maria")
-s.set("surname", "Tryapitsyna")
-print(s.keys("n?me"))
-print(s.get("firstname"))
+            return 1
+        else:
+            return 0
 
 
