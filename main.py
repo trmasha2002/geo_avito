@@ -1,7 +1,12 @@
+import telnetlib
 from cacheout import Cache
+from telnetlib import Telnet
 import re
+
+
 class Server(object):
-    def __init__(self):
+    def __init__(self, host='127.0.0.1'):
+        self.host = host
         self._data = Cache()
 
     def keys(self, pattern):
@@ -17,8 +22,24 @@ class Server(object):
         else:
             self._data.set(key, value)
         return 1
+
+    def hset(self, hash, key, value, ttl=0):
+        if ttl != 0:
+            self._data.set(hash, key, ttl)
+            self._data.set(key, value, ttl)
+        else:
+            self._data.set(hash, key)
+            self._data.set(key, value)
+        return 1
+
     def get(self, key):
         return self._data.get(key)
+
+    def hget(self, hash, key):
+        find_key = self._data.get(hash)
+        if find_key != key:
+            return 0
+        return self._data.get(find_key)
 
     def delete(self, key):
         if key in self._data.keys():
@@ -26,5 +47,4 @@ class Server(object):
             return 1
         else:
             return 0
-
 
