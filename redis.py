@@ -2,7 +2,7 @@ import telnetlib
 from cacheout import Cache
 import re
 from fastapi import FastAPI, Request
-
+import json
 class Redis(object):
     def __init__(self):
         self._data = Cache()
@@ -45,6 +45,7 @@ class Redis(object):
         else:
             self._data.set(name_list, array_of_data, ttl)
         return 1
+
     def get(self, key):
         return self._data.get(key)
 
@@ -53,6 +54,16 @@ class Redis(object):
         if find_key != key:
             return 0
         return self._data.get(find_key)
+
+    def lget(self, name_of_list, index):
+        array_of_data = self._data.get(name_of_list)
+        if array_of_data == None:
+            return None
+        print(array_of_data)
+        if index < len(array_of_data):
+            array_of_data[index]
+        else:
+            return 0
 
     def delete(self, key):
         if key in self._data.keys():

@@ -31,13 +31,18 @@ async def get(request: Request):
     data = await request.json()
     return redis.get(data['key'])
 
+@app.get("/HGET")
+async def hget(request: Request):
+    data = await request.json()
+    return redis.hget(data['hash'], data['key'])
+
+@app.get("/LGET")
+async def lget(request: Request):
+    data = await request.json()
+    return redis.lget(data['key'], data['index'])
 
 @app.get("/DELETE")
 async def delete(request: Request):
     data = await request.json()
     return redis.delete(data['key'])
 
-@app.get("/HGET")
-async def hget(request: Request):
-    data = await request.json()
-    return redis.hget(data['hash'], data['key'])
