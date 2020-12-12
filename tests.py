@@ -1,38 +1,39 @@
 import unittest
-from main import Server
-class TestServerFunction(unittest.TestCase):
+from redis import Redis
+class TestRedisFunctional(unittest.TestCase):
     def test_set_in_redis(self):
-        server = Server()
-        result = server.set("key", "value")
+        redis = Redis()
+        result = redis.set("key", "value")
         assert result == 1
 
     def test_get_in_redis(self):
-        server = Server()
-        server.set("key", "value")
-        result = server.get("key")
+        redis = Redis()
+        redis.set("key", "value")
+        result = redis.get("key")
         assert result == "value"
 
     def test_delete_in_redis(self):
-        server = Server()
-        server.set("key", "value")
-        result = server.delete("key")
+        redis = Redis()
+        redis.set("key", "value")
+        result = redis.delete("key")
         assert result == 1
 
     def test_keys_in_redis(self):
-        server = Server()
-        server.set("key", "value")
-        result = server.keys("k?y")
+        redis = Redis()
+        redis.set("key", "value")
+        result = redis.keys("k?y")
         assert result == ["key"]
 
     def test_hset_in_redis(self):
-        server = Server()
-        result = server.hset(1,"key", "value")
+        redis = Redis()
+        result = redis.hset(1,"key", "value")
         assert result == 1
 
     def test_hget_in_redis(self):
-        server = Server()
-        server.hset(1, "key", "value")
-        result = server.hget(1, "key")
+        redis = Redis()
+        redis.hset(1, "key", "value")
+        result = redis.hget(1, "key")
         assert result == "value"
+
 if __name__ == '__main__':
     unittest.main()

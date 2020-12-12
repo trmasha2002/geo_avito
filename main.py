@@ -1,50 +1,39 @@
-import telnetlib
-from cacheout import Cache
-from telnetlib import Telnet
-import re
+from fastapi import FastAPI, Request
+from redis import Redis
+
+app = FastAPI()
+redis = Redis()
+
+@app.get("/KEYS")
+async def keys(request: Request):
+    data = await request.json()
+    print(redis._data)
+    return redis.keys(data['pattern'])
 
 
-class Server(object):
-    def __init__(self, host='127.0.0.1'):
-        self.host = host
-        self._data = Cache()
+@app.get("/SET")
+async def set(request: Request):
+    data = await request.json()
+    return redis.set(data['key'], data['value'], data['ttl'])
 
-    def keys(self, pattern):
-        result = []
-        for key in self._data.keys():
-            if re.search(pattern, key) != None:
-                result.append(key)
-        return result
 
-    def set(self, key, value, ttl=0):
-        if ttl != 0:
-            self._data.set(key, value, ttl)
-        else:
-            self._data.set(key, value)
-        return 1
+@app.get("/GET")
+async def get(request: Request):
+    data = await request.json()
+    return redis.get(data['key'])
 
-    def hset(self, hash, key, value, ttl=0):
-        if ttl != 0:
-            self._data.set(hash, key, ttl)
-            self._data.set(key, value, ttl)
-        else:
-            self._data.set(hash, key)
-            self._data.set(key, value)
-        return 1
 
-    def get(self, key):
-        return self._data.get(key)
+@app.get("/DELETE")
+async def delete(request: Request):
+    data = await request.json()
+    return redis.delete(data['key'])
 
-    def hget(self, hash, key):
-        find_key = self._data.get(hash)
-        if find_key != key:
-            return 0
-        return self._data.get(find_key)
+@app.get("/HGET")
+async def hget(request: Request):
+    data = await request.json()
+    return redis.hget(data['hash'], data['key'])
 
-    def delete(self, key):
-        if key in self._data.keys():
-            self._data.delete(key)
-            return 1
-        else:
-            return 0
-
+@app.get("/HSET")
+async def hset(request: Request):
+    data = await request.json()
+    return redis.hset(data['hash'], data['key'], data['value'], data['ttl'])

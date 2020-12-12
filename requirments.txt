@@ -1,3 +1,4 @@
 re
 cacheout
 pytest
+fastapi
