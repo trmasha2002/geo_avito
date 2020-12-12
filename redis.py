@@ -29,7 +29,22 @@ class Redis(object):
             self._data.set(hash, key)
             self._data.set(key, value)
         return 1
-
+    def lset(self, name_list, index, value, ttl=0):
+        if name_list not in self._data.keys():
+            array_of_data = [0 for i in range(index + 1)]
+            array_of_data[index] = value
+        else:
+            array_of_data = self.get(name_list)
+            if (len(array_of_data) <= index):
+                array_of_data += [0 for i in range(index + 1 - len(array_of_data))]
+                array_of_data[index] = value
+            else:
+                array_of_data[index] = value
+        if (ttl == 0):
+            self._data.set(name_list, array_of_data)
+        else:
+            self._data.set(name_list, array_of_data, ttl)
+        return 1
     def get(self, key):
         return self._data.get(key)
 
