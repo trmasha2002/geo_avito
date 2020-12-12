@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from redis import Redis
-
+import uvicorn
 app = FastAPI()
 redis = Redis()
 
@@ -46,3 +46,5 @@ async def delete(request: Request):
     data = await request.json()
     return redis.delete(data['key'])
 
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

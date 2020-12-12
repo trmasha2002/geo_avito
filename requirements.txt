@@ -1,4 +1,4 @@
-re
 cacheout
 pytest
 fastapi
+uvicorn
