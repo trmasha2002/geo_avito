@@ -4,3 +4,4 @@
 2. python3 main.py
 3. register (login, password)
 4. autorization (login, password) -> token
+5. Example: set(token, key, value)
