@@ -3,7 +3,6 @@ from redis import Redis
 import uvicorn
 import uuid
 import datetime
-import json
 from hashlib import sha256
 app = FastAPI()
 redis = Redis()

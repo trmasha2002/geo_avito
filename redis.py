@@ -1,9 +1,5 @@
-import telnetlib
 from cacheout import Cache
 import re
-from fastapi import FastAPI, Request
-import json
-import datetime
 class Redis(object):
     def __init__(self):
         self._data = Cache()
