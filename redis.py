@@ -7,6 +7,9 @@ class Redis(object):
     def __init__(self):
         self._data = Cache()
 
+    def check_token(self, token):
+        return token in self._data.keys()
+
     def keys(self, pattern):
         result = []
         for key in self._data.keys():
@@ -61,7 +64,7 @@ class Redis(object):
             return None
         print(array_of_data)
         if index < len(array_of_data):
-            array_of_data[index]
+            return array_of_data[index]
         else:
             return 0
 
