@@ -3,6 +3,7 @@ from redis import Redis
 import uvicorn
 import uuid
 import datetime
+import json
 from hashlib import sha256
 app = FastAPI()
 redis = Redis()
@@ -11,66 +12,73 @@ redis = Redis()
 async def keys(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.keys(data['pattern'])
+        return {"value":redis.keys(data['pattern'])}
     else:
-        return 0
+        return {"status":"Not right token"}
 
 
 @app.get("/SET")
 async def set(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.set(data['key'], data['value'], data['ttl'])
+        redis.set(data['key'], data['value'], data['ttl'])
+        return {"status":"OK"}
     else:
-        return 0
+        return {"status": "Not right token"}
 
 @app.get("/HSET")
 async def hset(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.hset(data['hash'], data['key'], data['value'], data['ttl'])
+        redis.hset(data['hash'], data['key'], data['value'], data['ttl'])
+        return {"status":"OK"}
     else:
-        return 0
+        return {"status": "Not right token"}
 
 @app.get("/LSET")
 async def lset(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.lset(data['key'], data['index'], data['value'], data['ttl'])
+        redis.lset(data['key'], data['index'], data['value'], data['ttl'])
+        return {"status": "OK"}
     else:
-        return 0
+        return {"status": "Not right token"}
 
 @app.get("/GET")
 async def get(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.get(data['key'])
+        return {"value":redis.get(data['key'])}
     else:
-        return 0
+        return {"status": "Not right token"}
 
 @app.get("/HGET")
 async def hget(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.hget(data['hash'], data['key'])
+        return {"value":redis.hget(data['hash'], data['key'])}
     else:
-        return 0
+        return {"status":"Not right token"}
 
 @app.get("/LGET")
 async def lget(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.lget(data['key'], data['index'])
+        return {"value":redis.lget(data['key'], data['index'])}
     else:
-        return 0
+        return {"status": "Not right token"}
 
 @app.get("/DELETE")
 async def delete(request: Request):
     data = await request.json()
     if redis.check_token(data['token']):
-        return redis.delete(data['key'])
+        result = redis.delete(data['key'])
+        if result == 1:
+            return {"status":"OK"}
+        else:
+            return {"value": result}
     else:
-        return 0
+        return {"status":"Not right token"}
 
 @app.get("/register")
 async def register(request: Request):
@@ -79,7 +87,7 @@ async def register(request: Request):
     password = sha256(str(data['password']).encode('utf-8')).hexdigest()
     print(data['login'], password, file=f)
     f.close()
-    return 1
+    return {"status": "OK"}
 
 @app.get("/autorization")
 async def autorization(request: Request):
@@ -92,8 +100,9 @@ async def autorization(request: Request):
             password = sha256(str(data['password']).encode('utf-8')).hexdigest()
             if user[1] == password:
                 token = uuid.uuid4().hex
-                redis.set(token, str(datetime.datetime.now()))
+                redis.set_token(token, str(datetime.datetime.now()))
                 print(redis._data)
+                print(redis._tokens)
                 return {"token":token}
 
     return {"status":"Not found user"}
