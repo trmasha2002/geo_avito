@@ -1,12 +1,15 @@
 from app import app
 from flask import request
 from functools import wraps
+
+from app.models import Database
 from app.redis import Redis
-import uuid
 import datetime
 from hashlib import sha256
 
 redis = Redis()
+db = Database("redis.db")
+db.add_table_users()
 
 
 def check_authorization(func):
@@ -79,6 +82,7 @@ def delete():
 def register():
     f = open("users", "a")
     password = sha256(str(request.json['password']).encode('utf-8')).hexdigest()
+    db.add_user(request.json['login'], request.json['password'])
     print(request.json['login'], password, file=f)
     f.close()
     return {"status": "OK"}
@@ -86,15 +90,10 @@ def register():
 
 @app.route("/authorization", methods=['POST'])
 def authorization():
-    f = open("users", "r")
-    list_of_users = [line.split() for line in f.readlines()]
-    f.close()
-    for user in list_of_users:
-        if user[0] == request.json['login']:
-            password = sha256(str(request.json['password']).encode('utf-8')).hexdigest()
-            if user[1] == password:
-                token = uuid.uuid4().hex
-                redis.set_token(token, str(datetime.datetime.now()))
-                return {"token": token}
+    token = db.get_token_by_login_and_password(request.json['login'], request.json['password'])
+    if token is None:
+        return {"status": "Not found user"}
+    redis.set_token(token, str(datetime.datetime.now()))
+    return {"token": token}
 
-    return {"status": "Not found user"}
+

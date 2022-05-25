@@ -1,5 +1,7 @@
 import unittest
 from app.redis import Redis
+
+
 class TestRedisFunctional(unittest.TestCase):
     def test_set_in_redis(self):
         redis = Redis()
@@ -26,7 +28,7 @@ class TestRedisFunctional(unittest.TestCase):
 
     def test_hset_in_redis(self):
         redis = Redis()
-        result = redis.hset(1,"key", "value")
+        result = redis.hset(1, "key", "value")
         assert result == 1
 
     def test_hget_in_redis(self):
@@ -34,6 +36,7 @@ class TestRedisFunctional(unittest.TestCase):
         redis.hset(1, "key", "value")
         result = redis.hget(1, "key")
         assert result == "value"
+
 
 if __name__ == '__main__':
     unittest.main()
