@@ -1,5 +1,5 @@
 import unittest
-from redis import Redis
+from app.redis import Redis
 class TestRedisFunctional(unittest.TestCase):
     def test_set_in_redis(self):
         redis = Redis()

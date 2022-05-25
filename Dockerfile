@@ -5,9 +5,9 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 WORKDIR /app
 COPY requirements.txt ./
-COPY users ./
+COPY app/users ./
 RUN pip3 install -r requirements.txt
 
 COPY . ./
 
-CMD uvicorn --host=0.0.0.0 main:app
+RUN python3 runner.py

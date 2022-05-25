@@ -1,5 +1,7 @@
 from cacheout import Cache
 import re
+
+
 class Redis(object):
     def __init__(self):
         self._data = Cache()
@@ -14,7 +16,7 @@ class Redis(object):
     def keys(self, pattern):
         result = []
         for key in self._data.keys():
-            if re.search(pattern, key) != None:
+            if re.search(pattern, key) is not None:
                 result.append(key)
         return result
 
@@ -33,7 +35,7 @@ class Redis(object):
             array_of_data[index] = value
         else:
             array_of_data = self.get(name_list)
-            if (len(array_of_data) <= index):
+            if len(array_of_data) <= index:
                 array_of_data += [0 for i in range(index + 1 - len(array_of_data))]
                 array_of_data[index] = value
             else:
@@ -52,7 +54,7 @@ class Redis(object):
 
     def lget(self, name_of_list, index):
         array_of_data = self._data.get(name_of_list)
-        if array_of_data == None:
+        if array_of_data is None:
             return None
         print(array_of_data)
         if index < len(array_of_data):
@@ -66,7 +68,3 @@ class Redis(object):
             return 1
         else:
             return None
-
-
-
-
