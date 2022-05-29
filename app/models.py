@@ -19,7 +19,7 @@ class Database:
             )
             """
             )
-        except ConnectionError as e:
+        except Exception as e:
             print(e)
         self._conn.commit()
 
@@ -38,7 +38,6 @@ class Database:
 
     def get_token_by_login_and_password(self, login, password):
         password = sha256(str(password).encode('utf-8')).hexdigest()
-        print("blabla", login, password)
         try:
             self._cursor.execute(
                 """

@@ -5,7 +5,6 @@ from functools import wraps
 from app.models import Database
 from app.redis import Redis
 import datetime
-from hashlib import sha256
 
 redis = Redis()
 db = Database("redis.db")
@@ -15,57 +14,96 @@ db.add_table_users()
 def check_authorization(func):
     @wraps(func)
     def wrapper(*args):
-        if redis.check_token(request.json['token']):
-            return func(*args)
+        error_parse = check_body(keys=['token'])
+        if error_parse is None:
+            if redis.check_token(request.json['token']):
+                return func(*args)
+            else:
+                return {"status": "451", "Error":"Not right token"}
         else:
-            return {"status": "Not right token"}
+            return {"status":"451", "Error":error_parse}
 
     return wrapper
+
+
+def check_body(keys):
+    for key in keys:
+        if key not in request.json:
+            return f'{key} is required'
+    return None
 
 
 @app.route("/KEYS", methods=['GET'])
 @check_authorization
 def keys():
-    return {"value": redis.keys(request.json['pattern'])}
+    error_parse = check_body(keys=['pattern'])
+    if error_parse is None:
+        return {"value": redis.keys(request.json['pattern'])}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/SET", methods=['PUT'])
 @check_authorization
 def set():
-    redis.set(request.json['key'], request.json['value'], request.json['ttl'])
-    return {"status": "OK"}
+    error_parse = check_body(keys=['key', 'value', 'ttl'])
+    if error_parse is None:
+        redis.set(request.json['key'], request.json['value'], request.json['ttl'])
+        return {"status": "OK"}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/HSET", methods=['PUT'])
 @check_authorization
 def hset():
-    redis.hset(request.json['hash'], request.json['key'], request.json['value'], request.json['ttl'])
-    return {"status": "OK"}
+    error_parse = check_body(keys=['hash', 'key', 'value', 'ttl'])
+    if error_parse is None:
+        redis.hset(request.json['hash'], request.json['key'], request.json['value'], request.json['ttl'])
+        return {"status": "OK"}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/LSET", methods=['PUT'])
 @check_authorization
 def lset():
-    redis.lset(request.json['key'], request.json['index'], request.json['value'], request.json['ttl'])
-    return {"status": "OK"}
+    error_parse = check_body(keys=['key', 'index', 'value', 'ttl'])
+    if error_parse is None:
+        redis.lset(request.json['key'], request.json['index'], request.json['value'], request.json['ttl'])
+        return {"status": "OK"}
+    else:
+        return {"Status": "451", "Error": error_parse}
 
 
 @app.route("/GET", methods=['GET'])
 @check_authorization
 def get():
-    return {"value": redis.get(request.json['key'])}
+    error_parse = check_body(keys=['key'])
+    if error_parse is None:
+        return {"value": redis.get(request.json['key'])}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/HGET", methods=['GET'])
 @check_authorization
 def hget():
-    return {"value": redis.hget(request.json['hash'], request.json['key'])}
+    error_parse = check_body(keys=['hash', 'key'])
+    if error_parse is None:
+        return {"value": redis.hget(request.json['hash'], request.json['key'])}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/LGET", methods=['GET'])
 @check_authorization
 def lget():
-    return {"value": redis.lget(request.json['key'], request.json['index'])}
+    error_parse = check_body(keys=['key', 'index'])
+    if error_parse is None:
+        return {"value": redis.lget(request.json['key'], request.json['index'])}
+    else: 
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/DELETE", methods=['DELETE'])
@@ -80,12 +118,12 @@ def delete():
 
 @app.route("/register", methods=['POST'])
 def register():
-    f = open("users", "a")
-    password = sha256(str(request.json['password']).encode('utf-8')).hexdigest()
-    db.add_user(request.json['login'], request.json['password'])
-    print(request.json['login'], password, file=f)
-    f.close()
-    return {"status": "OK"}
+    error_parse = check_body(keys=['login', 'password'])
+    if error_parse is None:
+        db.add_user(request.json['login'], request.json['password'])
+        return {"status": "OK"}
+    else:
+        return {"Status":"451", "Error":error_parse}
 
 
 @app.route("/authorization", methods=['POST'])
